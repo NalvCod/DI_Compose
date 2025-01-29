@@ -15,22 +15,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,7 +44,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             PM_Compose_EjsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ejercicio2(modifier = Modifier.padding(innerPadding))
+                    Column {
+                        ejercicio3(innerPadding)
+                    }
                 }
             }
         }
@@ -69,8 +70,9 @@ fun ejercicio2(modifier : Modifier = Modifier) {
     LazyColumn {
         items(items = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5")) { item ->
             Row(
-                modifier = modifier.fillParentMaxWidth()
-                .background(colorResource(R.color.teal_200))
+                modifier = modifier
+                    .fillParentMaxWidth()
+                    .background(colorResource(R.color.teal_200))
                     .clickable {
                         println("Tarea completada")
                     },
@@ -94,14 +96,60 @@ fun ejercicio2(modifier : Modifier = Modifier) {
         }
     }
 }
-
 @Composable
-fun ejercicio3(modifier : Modifier = Modifier) {
-    LazyVerticalGrid(cells = GridCells.Fixed(2)){
-        items(items = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5")) { item ->
+fun ejercicio3(innerPadding: PaddingValues) {
+    val lista = listOf("hola", "ola", "adios", "bye")
+    val showDialog = remember { mutableStateOf(false) }
+    val clickedItem = remember { mutableStateOf<String?>(null) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Tarea completada") },
+            text = { Text("Has completado la tarea: ${clickedItem.value}") },
+            confirmButton = {
+                Button(onClick = { showDialog.value = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
+    LazyVerticalGrid(
+        modifier = Modifier.padding(innerPadding),
+        columns = GridCells.Fixed(2)
+    ) {
+        items(
+            count = lista.size,
+            itemContent = { indice ->
+                val item = lista[indice]
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            clickedItem.value = item
+                            showDialog.value = true
+                        }
+                        .background(if (clickedItem.value == item) Color.LightGray else Color.Transparent)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = item)
+                }
+            },
+        )
     }
 }
+
+
+@Preview
+@Composable
+fun previewEj3(){
+    PM_Compose_EjsTheme {
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            ejercicio3(innerPadding)
+        }
     }
+}
 
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -117,14 +165,12 @@ fun GreetingPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showSystemUi = true)
 @Composable
 fun GreetingPreview2() {
     PM_Compose_EjsTheme {
-        PM_Compose_EjsTheme {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                ejercicio2(modifier = Modifier.padding(innerPadding))
-            }
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            ejercicio2(modifier = Modifier.padding(innerPadding))
         }
     }
 }
